@@ -210,6 +210,16 @@ def fazer_reserva(quarto, cpf, checkin, checkout):
     except:
          print("Erro")
     
+def mostrar_dispo_tempo(checkin,checkout):
+   
+    try:
+        cursor=conexão.cursor()
+        cursor.execute(f'SELECT * FROM tb_quarto WHERE estado = "disponível" and cod_quarto NOT IN(SELECT DISTINCT codigo_quarto FROM tb_reserva WHERE (check_in >= "{checkin}" and check_in <= "{checkout}") OR ("{checkin}" <= check_out AND "{checkout}" >= check_out))')
+        disp = cursor.fetchall()
+        resultado = pd.DataFrame(data=disp, columns=["ID QUARTO","ESTADO","CAPACIDADE","PREÇO"])
+        print(resultado.to_string(index=False))
+    except:
+         print("ERRO mostrar quartos disponíveis e sem reservas nesse espaço de tempo")
 
 def hist_reserva(cpf):
     
@@ -323,7 +333,7 @@ while True:
                     if escolha_cliente == 1:
                          mostrar_quarto()
                          while True:
-                            print("\n1-mostrar quartos com serviços adicionais\n2-fazer uma reserva\n3-ver reservas de um quarto\n4-voltar")
+                            print("\n1-mostrar quartos com serviços adicionais\n2-fazer uma reserva\n3-ver reservas de um quarto\n4-Ver quartos disponíveis com base em data\n5-voltar")
                             escolha_quarto = int(input("Digite sua escolha: "))
                             if escolha_quarto == 1:
                                 mostrar_quarto_serviço()
@@ -332,7 +342,9 @@ while True:
                             elif escolha_quarto == 3:
                                 reservas_quarto(int(input("Id Quarto:")))
                             elif escolha_quarto == 4:
-                                break
+                                mostrar_dispo_tempo(input("data checkin pretendida: "), input("data checkout pretendido: "))
+                            elif escolha_quarto ==5:
+                                 break
                             else:
                                 print("Opção inválida")
                     elif escolha_cliente == 2:
